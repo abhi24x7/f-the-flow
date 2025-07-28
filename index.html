@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>f-the-flow.com</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: #666;
+            color: white;
+            padding: 15px 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .left-panel {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background-color: white;
+        }
+
+        .correlation-group {
+            position: relative;
+        }
+
+        .dropdown-arrow {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #666;
+            pointer-events: none;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #8B4513;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .calculate-btn:hover {
+            background-color: #A0522D;
+        }
+
+        .calculate-btn:active {
+            background-color: #654321;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .result-label {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .result-value {
+            font-size: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            color: #333;
+        }
+
+        .result-value.calculated {
+            background-color: #e8f5e8;
+            border-color: #4CAF50;
+            color: #2d5a2d;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 400px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23f8f9fa"/><g stroke="%23dee2e6" stroke-width="1" fill="none"><line x1="60" y1="60" x2="60" y2="340"/><line x1="60" y1="340" x2="540" y2="340"/></g><g stroke="%23007bff" stroke-width="2" fill="none"><path d="M60,300 Q150,250 240,220 T420,200 T540,190"/></g><g stroke="%23dc3545" stroke-width="2" fill="none"><path d="M60,320 Q150,280 240,250 T420,230 T540,220"/></g><g stroke="%23ffc107" stroke-width="2" fill="none"><path d="M60,280 Q150,240 240,210 T420,190 T540,180"/></g><text x="300" y="30" text-anchor="middle" font-family="Arial" font-size="14" fill="%23333">Moody Chart - Friction Factor vs Reynolds Number</text><text x="30" y="200" text-anchor="middle" font-family="Arial" font-size="12" fill="%23666" transform="rotate(-90 30 200)">Friction Factor (f)</text><text x="300" y="380" text-anchor="middle" font-family="Arial" font-size="12" fill="%23666">Reynolds Number (Re)</text></svg>') no-repeat center;
+            background-size: contain;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .error {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .info {
+            color: #1976d2;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 20px 10px;
+            }
+            
+            .header {
+                font-size: 20px;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">f-the-flow.com</div>
+    
+    <div class="container">
+        <div class="left-panel">
+            <div class="input-group">
+                <label for="eOverD">e/D</label>
+                <input type="number" id="eOverD" step="any" placeholder="Enter e/D ratio">
+            </div>
+            
+            <div class="input-group">
+                <label for="reynolds">Re</label>
+                <input type="number" id="reynolds" step="any" placeholder="Enter Reynolds number">
+            </div>
+            
+            <div class="input-group correlation-group">
+                <label for="correlation">Correlation</label>
+                <select id="correlation">
+                    <option value="swamee-jain">Swamee-Jain</option>
+                    <option value="colebrook">Colebrook</option>
+                    <option value="haaland">Haaland</option>
+                    <option value="chen">Chen</option>
+                    <option value="zigrang-sylvester">Zigrang-Sylvester</option>
+                    <option value="goudar-sonnad">Goudar-Sonnad</option>
+                </select>
+                <div class="dropdown-arrow"></div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateFrictionFactor()">Calculate</button>
+            
+            <div class="result-section">
+                <div class="result-label">Friction factor (f):</div>
+                <div class="result-value" id="result">Enter values and click Calculate</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-placeholder"></div>
+        </div>
+    </div>
+
+    <script>
+        // Friction factor correlations
+        const correlations = {
+            'swamee-jain': function(eOverD, Re) {
+                // Swamee-Jain equation
+                if (Re < 4000) return null; // Invalid for laminar flow
+                const term1 = Math.log10(eOverD / 3.7 + 5.74 / Math.pow(Re, 0.9));
+                return 0.25 / Math.pow(term1, 2);
+            },
+            
+            'colebrook': function(eOverD, Re) {
+                // Colebrook equation (iterative solution using Newton-Raphson)
+                if (Re < 4000) return null;
+                
+                let f = 0.02; // Initial guess
+                for (let i = 0; i < 20; i++) {
+                    const sqrt_f = Math.sqrt(f);
+                    const term = eOverD / 3.7 + 2.51 / (Re * sqrt_f);
+                    const f_new = 0.25 / Math.pow(Math.log10(term), 2);
+                    if (Math.abs(f_new - f) < 1e-10) break;
+                    f = f_new;
+                }
+                return f;
+            },
+            
+            'haaland': function(eOverD, Re) {
+                // Haaland equation
+                if (Re < 4000) return null;
+                const term1 = Math.pow(eOverD / 3.7, 1.11);
+                const term2 = 6.9 / Re;
+                const denominator = Math.log10(term1 + term2);
+                return Math.pow(-1.8 * denominator, -2);
+            },
+            
+            'chen': function(eOverD, Re) {
+                // Chen equation
+                if (Re < 4000) return null;
+                const A = Math.log10(eOverD / 3.7065 - 5.0452 / Re * Math.log10(Math.pow(eOverD / 2.8257, 1.1098) + Math.pow(5.8506 / Re, 0.8981)));
+                return Math.pow(-2 * A, -2);
+            },
+            
+            'zigrang-sylvester': function(eOverD, Re) {
+                // Zigrang-Sylvester equation
+                if (Re < 4000) return null;
+                const A = -0.8686 * Math.log10(eOverD / 3.7 + 5.74 / Math.pow(Re, 0.9));
+                const B = A - 0.8686 * Math.log10(eOverD / 3.7 + 2.51 * A / Re);
+                return Math.pow(A - (Math.pow(A, 2) - B) / (2 * A - B), -2);
+            },
+            
+            'goudar-sonnad': function(eOverD, Re) {
+                // Goudar-Sonnad equation
+                if (Re < 4000) return null;
+                const a = 2 / Math.log(10);
+                const b = eOverD / 3.7;
+                const d = Math.log(10) / 5.02 * Re;
+                const s = b * d + Math.log(d);
+                const q = Math.pow(s, Math.pow(s, 1) / (Math.pow(s, 1) + 1));
+                const g = b * d + Math.log(d / q);
+                const z = Math.log(q / g);
+                const dLA = g / (g + 1) * z;
+                const dCF = dLA * (1 + z / 2 / Math.pow(g + 1, 2));
+                return a * Math.pow(Math.log(d / q) + dCF, -2);
+            }
+        };
+
+        function calculateFrictionFactor() {
+            const eOverD = parseFloat(document.getElementById('eOverD').value);
+            const Re = parseFloat(document.getElementById('reynolds').value);
+            const correlationType = document.getElementById('correlation').value;
+            const resultDiv = document.getElementById('result');
+            
+            // Validation
+            if (isNaN(eOverD) || isNaN(Re)) {
+                resultDiv.textContent = 'Please enter valid numerical values for e/D and Re';
+                resultDiv.className = 'result-value error';
+                return;
+            }
+            
+            if (eOverD < 0) {
+                resultDiv.textContent = 'e/D must be non-negative';
+                resultDiv.className = 'result-value error';
+                return;
+            }
+            
+            if (Re <= 0) {
+                resultDiv.textContent = 'Reynolds number must be positive';
+                resultDiv.className = 'result-value error';
+                return;
+            }
+            
+            // Handle laminar flow
+            if (Re < 4000) {
+                const f_laminar = 64 / Re;
+                resultDiv.textContent = `${f_laminar.toExponential(6)} (Laminar flow: f = 64/Re)`;
+                resultDiv.className = 'result-value calculated';
+                return;
+            }
+            
+            // Calculate using selected correlation
+            try {
+                const f = correlations[correlationType](eOverD, Re);
+                
+                if (f === null || isNaN(f) || f <= 0) {
+                    resultDiv.textContent = 'Calculation failed - check input values';
+                    resultDiv.className = 'result-value error';
+                    return;
+                }
+                
+                resultDiv.textContent = f.toExponential(6);
+                resultDiv.className = 'result-value calculated';
+                
+            } catch (error) {
+                resultDiv.textContent = 'Calculation error occurred';
+                resultDiv.className = 'result-value error';
+                console.error('Calculation error:', error);
+            }
+        }
+
+        // Allow Enter key to trigger calculation
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                calculateFrictionFactor();
+            }
+        });
+
+        // Auto-calculate when values change (optional)
+        document.getElementById('eOverD').addEventListener('input', function() {
+            const eOverD = this.value;
+            const Re = document.getElementById('reynolds').value;
+            if (eOverD && Re) {
+                setTimeout(calculateFrictionFactor, 500); // Debounce
+            }
+        });
+
+        document.getElementById('reynolds').addEventListener('input', function() {
+            const eOverD = document.getElementById('eOverD').value;
+            const Re = this.value;
+            if (eOverD && Re) {
+                setTimeout(calculateFrictionFactor, 500); // Debounce
+            }
+        });
+    </script>
+</body>
+</html>
