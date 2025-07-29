@@ -91,7 +91,7 @@
             padding: 15px;
             font-size: 18px;
             font-weight: bold;
-            background-color: #8B4513;
+            background-color: hwb(216 7% 45%);
             color: white;
             border: none;
             border-radius: 4px;
@@ -179,17 +179,17 @@
     </style>
 </head>
 <body>
-    <div class="header">f-the-flow.com</div>
+    <div class="header">f-the-flow</div>
     
     <div class="container">
         <div class="left-panel">
             <div class="input-group">
-                <label for="eOverD">e/D</label>
-                <input type="number" id="eOverD" step="any" placeholder="">
+                <label for="eOverD">Relative Roughness (ε/D)</label>
+                <input type="number" id="eOverD" step="any" placeholder="Enter e/D ratio">
             </div>
             
             <div class="input-group">
-                <label for="reynolds">Re</label>
+                <label for="reynolds">Reynolds Number (Re)</label>
                 <input type="number" id="reynolds" step="any" placeholder="Enter Reynolds number">
             </div>
             
@@ -209,8 +209,8 @@
             <button class="calculate-btn" onclick="calculateFrictionFactor()">Calculate</button>
             
             <div class="result-section">
-                <div class="result-label">Friction factor (f):</div>
-                <div class="result-value" id="result">Enter values and click Calculate</div>
+                <div class="result-label">Darcy's friction factor (f)</div>
+                <div class="result-value" id="result"> </div>
             </div>
         </div>
         
